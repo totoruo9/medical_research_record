@@ -8,9 +8,9 @@ import { useState } from 'react'
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false)
-    const supabase = createClient()
 
     const handleLogin = async () => {
+        const supabase = createClient()
         setLoading(true)
         await supabase.auth.signInWithOAuth({
             provider: 'google',

@@ -16,9 +16,9 @@ export default function ImportPage() {
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState<string | null>(null)
     const router = useRouter()
-    const supabase = createClient()
 
     const handleImport = async () => {
+        const supabase = createClient()
         setLoading(true)
         setError(null)
         setSuccess(null)

@@ -21,7 +21,6 @@ export default function DashboardClient({ user }: { user: any }) {
     const [newReport, setNewReport] = useState<any>(null)
     const [recentReport, setRecentReport] = useState<any>(null) // For the dashboard summary card
 
-    const supabase = createClient()
     const router = useRouter()
 
     useEffect(() => {
@@ -29,6 +28,7 @@ export default function DashboardClient({ user }: { user: any }) {
     }, [])
 
     const fetchData = async () => {
+        const supabase = createClient()
         const { data: reports } = await supabase.from('ai_reports').select('*').order('created_at', { ascending: false }).limit(1)
         if (reports && reports.length > 0) setRecentReport(reports[0])
 
@@ -44,6 +44,7 @@ export default function DashboardClient({ user }: { user: any }) {
     }
 
     const handleAnalyze = async () => {
+        const supabase = createClient()
         setLoading(true)
         try {
             const res = await fetch('/api/analyze', { method: 'POST' })
