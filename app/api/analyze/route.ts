@@ -4,13 +4,13 @@ import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
 import { BLOOD_TEST_RANGES } from '@/lib/constants'
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    organization: process.env.OPENAI_ORG_ID,
-})
-
 export async function POST(request: Request) {
+    // Initialize OpenAI client
+    const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+        organization: process.env.OPENAI_ORG_ID,
+    })
+
     try {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
