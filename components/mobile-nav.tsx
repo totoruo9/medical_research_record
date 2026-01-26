@@ -76,7 +76,7 @@ export function MobileNav() {
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
-                <SheetHeader className="px-1 text-left">
+                <SheetHeader className="pl-6 text-left">
                     <SheetTitle>
                         <Link href="/dashboard" className="font-bold text-xl text-blue-900" onClick={() => setOpen(false)}>
                             Care Platform
@@ -105,7 +105,7 @@ export function MobileNav() {
                 <div className="p-4 border-t mt-auto">
                     <Button
                         variant="outline"
-                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="w-full justify-center text-red-600 hover:text-red-700 hover:bg-red-50"
                         onClick={async () => {
                             const { createClient } = await import('@/lib/supabase/client')
                             const supabase = createClient()

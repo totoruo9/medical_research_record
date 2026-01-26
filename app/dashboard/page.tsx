@@ -17,11 +17,6 @@ export default async function DashboardPage() {
             <SiteHeader />
 
             <div className="py-10">
-                <header className="mb-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold leading-tight text-gray-900">
-                        대시보드
-                    </h1>
-                </header>
                 <main>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <DashboardClient user={user} />

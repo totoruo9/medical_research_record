@@ -19,7 +19,7 @@ export default function DashboardClient({ user }: { user: any }) {
     const [recentInkt, setRecentInkt] = useState<any>(null) // State for iNKt record
     const [showResultModal, setShowResultModal] = useState(false)
     const [newReport, setNewReport] = useState<any>(null)
-    const [recentReport, setRecentReport] = useState<any>(null) // For the dashboard summary card
+    const [recentReports, setRecentReports] = useState<any[]>([]) // For the dashboard summary card
 
     const router = useRouter()
 
@@ -29,8 +29,8 @@ export default function DashboardClient({ user }: { user: any }) {
 
     const fetchData = async () => {
         const supabase = createClient()
-        const { data: reports } = await supabase.from('ai_reports').select('*').order('created_at', { ascending: false }).limit(1)
-        if (reports && reports.length > 0) setRecentReport(reports[0])
+        const { data: reports } = await supabase.from('ai_reports').select('*').order('created_at', { ascending: false }).limit(5)
+        if (reports && reports.length > 0) setRecentReports(reports)
 
         const { data: tests } = await supabase.from('blood_tests').select('*').order('test_date', { ascending: false }).limit(1)
         if (tests && tests.length > 0) setRecentTest(tests[0])
@@ -75,37 +75,40 @@ export default function DashboardClient({ user }: { user: any }) {
     return (
         <div className="space-y-8">
             {/* Hero Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Hero Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">환자 대시보드</h2>
-                    <p className="text-gray-500">오늘의 건강 상태를 한눈에 확인하세요.</p>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-foreground">
+                        안녕하세요, <span className="text-primary">{user?.user_metadata?.full_name || user?.email?.split('@')[0]}</span>님!
+                    </h2>
+                    <p className="text-muted-foreground mt-2 text-lg">오늘의 건강 상태를 확인하세요.</p>
                 </div>
-                {recentTest || recentCt ? (
-                    <div className="flex gap-2">
-                        <Button onClick={handleAnalyze} disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-all hover:shadow-lg">
-                            {loading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Brain className="mr-2 h-4 w-4" />}
-                            {loading ? 'AI 분석 중...' : '맞춤형 정밀 분석 실행'}
+                <div className="flex gap-3">
+                    {recentTest || recentCt ? (
+                        <Button onClick={handleAnalyze} disabled={loading} size="lg" className="shadow-xl shadow-primary/20">
+                            {loading ? <Loader2 className="animate-spin mr-2" /> : <Brain className="mr-2" />}
+                            {loading ? 'AI 정밀 분석 중...' : 'AI 정밀 분석 실행'}
                         </Button>
-                    </div>
-                ) : (
-                    <Button asChild className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-all hover:shadow-lg">
-                        <Link href="/blood-tests">
-                            <Activity className="mr-2 h-4 w-4" /> 초기 데이터 입력하기
-                        </Link>
-                    </Button>
-                )}
+                    ) : (
+                        <Button asChild size="lg" className="shadow-xl shadow-primary/20">
+                            <Link href="/blood-tests">
+                                <Activity className="mr-2" /> 초기 데이터 입력
+                            </Link>
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* Key Metrics Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* ... (Existing Metric Cards Code) ... */}
-                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-blue-500">
+                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-blue-500 h-full">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                             <Activity className="h-4 w-4" /> 최근 혈액 검사
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         {recentTest ? (
                             <div className="space-y-1">
                                 <div className="text-2xl font-bold text-gray-900">
@@ -124,9 +127,11 @@ export default function DashboardClient({ user }: { user: any }) {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-6 text-gray-400 text-sm">
-                                <Activity className="h-8 w-8 mb-2 opacity-20" />
-                                기록 없음
+                            <div className="flex flex-col items-center justify-center py-8 text-center">
+                                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                    <Activity className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <p className="text-sm text-gray-500 font-medium">혈액 검사 기록 없음</p>
                             </div>
                         )}
                     </CardContent>
@@ -139,14 +144,14 @@ export default function DashboardClient({ user }: { user: any }) {
                     )}
                 </Card>
 
-                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-teal-500">
+                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-teal-500 h-full">
                     {/* ... CT Scan Card Content ... */}
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                             <FileText className="h-4 w-4" /> 최근 CT 판독
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         {recentCt ? (
                             <div className="space-y-1">
                                 <div className="text-2xl font-bold text-gray-900">
@@ -170,13 +175,13 @@ export default function DashboardClient({ user }: { user: any }) {
                     </CardFooter>
                 </Card>
 
-                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-rose-500">
+                <Card className="shadow-sm hover:shadow-md transition-shadow border-t-4 border-t-rose-500 h-full">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                             <Activity className="h-4 w-4" /> 최근 iNKt 투여
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1">
                         {recentInkt ? (
                             <div className="space-y-1">
                                 <div className="text-2xl font-bold text-gray-900">
@@ -196,9 +201,11 @@ export default function DashboardClient({ user }: { user: any }) {
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center py-6 text-gray-400 text-sm">
-                                <Activity className="h-8 w-8 mb-2 opacity-20" />
-                                기록 없음
+                            <div className="flex flex-col items-center justify-center py-8 text-center">
+                                <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                    <Activity className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <p className="text-sm text-gray-500 font-medium">혈액 검사 기록 없음</p>
                             </div>
                         )}
                     </CardContent>
@@ -210,31 +217,51 @@ export default function DashboardClient({ user }: { user: any }) {
                 </Card>
             </div>
 
-            {/* Recent Analysis Summary Card - Simplified */}
-            {recentReport && (
-                <Card className="shadow-lg border-0 ring-1 ring-gray-200 overflow-hidden">
-                    <CardHeader className="bg-gradient-to-r from-purple-50 via-purple-50/50 to-white border-b border-gray-100 py-4">
+            {/* Recent Analysis Summary Card */}
+            {/* Recent Analysis Summary Card */}
+            {recentReports.length > 0 && (
+                <Card className="shadow-lg border-none ring-1 ring-black/5 overflow-hidden group py-0 gap-0">
+                    <CardHeader className="bg-gradient-to-br from-indigo-50/50 to-white pt-5 pb-0 gap-0 border-b border-indigo-50/50">
                         <div className="flex items-center justify-between">
-                            <CardTitle className="flex items-center gap-2 text-purple-900 text-lg">
-                                <Brain className="w-5 h-5 text-purple-600" />
-                                최근 AI 정밀 분석 리포트
+                            <CardTitle className="flex items-center gap-2 text-indigo-950 text-lg font-bold">
+                                <div className="p-2 bg-indigo-100/50 rounded-xl group-hover:bg-indigo-100 transition-colors">
+                                    <Brain className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                최근 AI 정밀 분석
                             </CardTitle>
-                            <span className="text-sm text-gray-500">
-                                {format(new Date(recentReport.created_at), 'yyyy.MM.dd')}
-                            </span>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="prose prose-sm max-w-none text-gray-600 line-clamp-2">
-                            {/* Simple summary extractor */}
-                            {(recentReport.content || '').substring(0, 200) + '...'}
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                            <Button variant="outline" className="text-purple-600 border-purple-200 hover:bg-purple-50" asChild>
-                                <Link href="/reports">
-                                    전체 리포트 보기 <ChevronRight className="ml-1 w-4 h-4" />
+                            <Button variant="ghost" className="text-indigo-600 hover:text-indigo-800 hover:bg-transparent font-medium h-auto text-xs p-0 pr-0" asChild>
+                                <Link href="/reports" className="flex items-center">
+                                    전체보기 <ChevronRight className="ml-0.5 w-3 h-3" />
                                 </Link>
                             </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="divide-y divide-gray-100">
+                            {recentReports.map((report, index) => (
+                                <div key={report.id} className="p-5 sm:p-6 hover:bg-gray-50/50 transition-colors group/item">
+                                    <Link href="/reports" className="block">
+                                        <div className="flex items-start justify-between gap-4 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-semibold text-gray-900 group-hover/item:text-indigo-700 transition-colors">
+                                                    {format(new Date(report.created_at), 'yyyy.MM.dd')} 분석 리포트
+                                                </span>
+                                                {index === 0 && (
+                                                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100">NEW</span>
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-gray-400">
+                                                {format(new Date(report.created_at), 'HH:mm')}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                            {report.content
+                                                ? report.content.replace(/#{1,6}\s|[*`]/g, '').trim()
+                                                : '분석 내용이 없습니다.'}
+                                        </p>
+                                    </Link>
+                                </div>
+                            ))}
                         </div>
                     </CardContent>
                 </Card>
@@ -242,32 +269,39 @@ export default function DashboardClient({ user }: { user: any }) {
 
             {/* Analysis Result Modal */}
             <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-purple-900">
-                            <Brain className="w-6 h-6 text-purple-600" />
-                            AI 정밀 분석 완료
-                        </DialogTitle>
-                        <DialogDescription>
-                            새로운 건강 분석 리포트가 생성되었습니다.
-                        </DialogDescription>
+                <DialogContent className="fixed z-50 w-full h-[100dvh] max-w-none rounded-none top-0 left-0 translate-x-0 translate-y-0 sm:top-[50%] sm:left-[50%] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:h-auto sm:max-h-[90vh] sm:w-full sm:max-w-4xl sm:rounded-xl p-0 overflow-hidden flex flex-col gap-0 border-0 sm:border bg-background shadow-none sm:shadow-lg">
+                    <DialogHeader className="p-6 pb-4 pt-20 shrink-0 relative flex flex-col items-center justify-center space-y-0 text-center">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white text-gray-900 shadow-lg border border-gray-100 hover:bg-gray-50 w-12 h-12 z-10"
+                            onClick={() => setShowResultModal(false)}
+                        >
+                            <span className="sr-only">Close</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                        </Button>
+
+                        <div className="flex flex-col gap-2 items-center w-full">
+                            <DialogTitle className="text-2xl font-bold flex items-center justify-center gap-2 text-purple-900">
+                                <Brain className="w-7 h-7 text-purple-600" />
+                                AI 정밀 분석 완료
+                            </DialogTitle>
+                            <DialogDescription className="text-base text-gray-500 text-center">
+                                새로운 건강 분석 리포트가 생성되었습니다.
+                            </DialogDescription>
+                        </div>
                     </DialogHeader>
 
-                    <div className="my-4">
+                    <div className="flex-1 overflow-y-auto p-6 pt-0 min-h-0 overscroll-contain bg-white">
                         {newReport && <ReportItem report={newReport} />}
                     </div>
 
-                    <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between items-center bg-gray-50 -mx-6 -mb-6 p-6 mt-6 border-t border-gray-100">
-                        <Button variant="ghost" onClick={() => setShowResultModal(false)}>
-                            닫기
+                    <DialogFooter className="shrink-0 flex items-center p-6 border-t border-gray-100 bg-gray-50/95 backdrop-blur-sm sm:justify-end">
+                        <Button asChild variant="default" size="lg" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100 text-white font-semibold">
+                            <Link href="/reports">
+                                <FileText className="mr-2 h-5 w-5" /> 분석 기록함 이동
+                            </Link>
                         </Button>
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            <Button asChild variant="outline" className="flex-1 sm:flex-none">
-                                <Link href="/reports">
-                                    <FileText className="mr-2 h-4 w-4" /> 분석 기록함 이동
-                                </Link>
-                            </Button>
-                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

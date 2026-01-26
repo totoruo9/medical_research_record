@@ -100,12 +100,12 @@ export function ReportItem({ report }: ReportItemProps) {
     const hasChartData = chartData.length > 0
 
     return (
-        <Card className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'ring-2 ring-primary/5' : 'hover:shadow-md'}`}>
+        <Card className={`overflow-hidden transition-all duration-300 py-0 gap-0 ${isExpanded ? 'ring-2 ring-primary/5' : 'hover:shadow-md'}`}>
             <div
                 className="cursor-pointer"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
-                <CardHeader className="bg-white border-b border-gray-100 px-4 py-2 sm:px-6 sm:py-4">
+                <CardHeader className="bg-white border-b border-gray-100 px-4 pt-6 pb-4 sm:px-6 sm:pt-8 sm:pb-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
                         <div className="space-y-1 w-full sm:w-auto">
                             <CardTitle className="text-sm sm:text-base md:text-lg font-semibold text-gray-800 flex flex-wrap items-center gap-2 leading-tight">
@@ -135,7 +135,6 @@ export function ReportItem({ report }: ReportItemProps) {
                             </Button>
 
                             <div className="flex items-center gap-1">
-                                {isExpanded ? <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" /> : <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />}
                                 <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-gray-400 hover:text-red-500 hover:bg-red-50" onClick={handleDelete} disabled={isDeleting}>
                                     {isDeleting ? <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" /> : <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />}
                                 </Button>
@@ -145,13 +144,24 @@ export function ReportItem({ report }: ReportItemProps) {
                 </CardHeader>
 
                 {!isExpanded && (
-                    <CardContent className="p-3 sm:p-6 bg-white">
-                        <div className="prose prose-sm max-w-none text-gray-600 line-clamp-3">
-                            <span className="font-bold text-gray-900 block mb-1">종합 상태 분석 요약:</span>
-                            {getSummary(report.content || '')}
+                    <CardContent className="p-6 sm:p-8 bg-gray-50/80 border-t border-gray-100/50">
+                        <div className="text-gray-600 text-sm leading-relaxed mb-6">
+                            <span className="font-bold text-gray-900 block mb-3 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                종합 상태 분석 요약
+                            </span>
+                            <div className="line-clamp-3 pl-1 text-gray-600">
+                                {getSummary(report.content || '')}
+                            </div>
                         </div>
-                        <div className="mt-4 text-center text-sm text-indigo-600 font-medium">
-                            전체 리포트 및 상세 데이터 보기
+                        <div className="flex justify-center">
+                            <Button
+                                variant="outline"
+                                className="rounded-full px-20 py-3 h-auto text-indigo-600 border-indigo-200 bg-white hover:bg-indigo-50 hover:text-indigo-700 shadow-sm transition-all hover:shadow-md font-semibold text-sm group"
+                            >
+                                전체 리포트 및 상세 데이터 보기
+                                <ChevronDown className="ml-1 w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                            </Button>
                         </div>
                     </CardContent>
                 )}
@@ -239,8 +249,15 @@ export function ReportItem({ report }: ReportItemProps) {
                             </div>
                         )}
 
-                        <div className="mt-8 pt-4 text-center" style={{ borderTop: '1px solid #e5e7eb' }}>
-                            <p className="text-xs" style={{ color: '#9ca3af' }}>
+                        <div className="mt-10 pt-6 text-center flex flex-col items-center gap-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsExpanded(false)}
+                                className="rounded-full px-8 py-2 h-auto text-gray-500 border-gray-200 bg-white hover:text-indigo-600 hover:border-indigo-200 hover:bg-gray-50"
+                            >
+                                요약으로 보기 <ChevronUp className="ml-1 w-4 h-4" />
+                            </Button>
+                            <p className="text-[11px]" style={{ color: '#9ca3af' }}>
                                 * 본 리포트는 AI 보조 분석 결과이며, 의학적 진단을 대신할 수 없습니다. 반드시 주치의와 상담하세요.
                             </p>
                         </div>

@@ -47,17 +47,17 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(215 25% 17%);
+  --radius: 1rem;
+  --background: hsl(210 20% 98%);
+  --foreground: hsl(222 47% 11%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(215 25% 17%);
+  --card-foreground: hsl(222 47% 11%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(215 25% 17%);
-  --primary: hsl(215 90% 48%);
+  --popover-foreground: hsl(222 47% 11%);
+  --primary: hsl(221 83% 53%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 20% 96%);
-  --secondary-foreground: hsl(215 25% 17%);
+  --secondary: hsl(210 40% 96.1%);
+  --secondary-foreground: hsl(222 47% 11.2%);
   --muted: hsl(210 20% 96%);
   --muted-foreground: hsl(215 15% 45%);
   --accent: hsl(210 20% 96%);
