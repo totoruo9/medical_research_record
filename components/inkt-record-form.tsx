@@ -16,10 +16,10 @@ interface InktRecordFormProps {
 }
 
 export function InktRecordForm({ initialData, onSuccess, onCancel }: InktRecordFormProps) {
-    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const supabase = createClient()
         e.preventDefault()
         setLoading(true)
 

@@ -18,10 +18,10 @@ import { OCRUpload } from '@/components/ocr-upload'
 
 export default function NewCTScanPage() {
     const router = useRouter()
-    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const supabase = createClient()
         e.preventDefault()
         setLoading(true)
 

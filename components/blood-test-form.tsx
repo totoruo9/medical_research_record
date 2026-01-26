@@ -82,10 +82,10 @@ interface BloodTestFormProps {
 
 export function BloodTestForm({ initialData, onSuccess, onCancel }: BloodTestFormProps) {
     const router = useRouter()
-    const supabase = createClient()
     const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        const supabase = createClient()
         e.preventDefault()
         setLoading(true)
 
