@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false)
@@ -44,8 +45,8 @@ export default function LoginPage() {
                     Google 계정으로 계속하기
                 </Button>
 
-                <div className="pt-4 text-xs text-center text-gray-400">
-                    계속 진행함으로써 귀하는 <a href="/terms" className="hover:text-gray-600 underline">이용약관</a> 및 <a href="/privacy" className="hover:text-gray-600 underline">개인정보처리방침</a>에 동의하게 됩니다.
+                <div className="pt-4 text-xs text-center text-gray-400 relative z-10">
+                    계속 진행함으로써 귀하는 <Link href="/terms" className="hover:text-gray-600 underline cursor-pointer">이용약관</Link> 및 <Link href="/privacy" className="hover:text-gray-600 underline cursor-pointer">개인정보처리방침</Link>에 동의하게 됩니다.
                 </div>
             </div>
         </div>
