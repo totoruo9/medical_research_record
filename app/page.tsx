@@ -53,9 +53,17 @@ export default function Home() {
         </Button>
 
         <div className="pt-4 text-xs text-center text-gray-400 relative z-10">
-          계속 진행함으로써 귀하는 <Link href="/terms" className="hover:text-gray-600 underline cursor-pointer">이용약관</Link> 및 <Link href="/privacy" className="hover:text-gray-600 underline cursor-pointer">개인정보처리방침</Link>에 동의하게 됩니다.
+          계속 진행함으로써 귀하는 서비스의 정책에 동의하게 됩니다.
         </div>
       </div>
+
+      <footer className="absolute bottom-6 w-full text-center">
+        <div className="space-x-6 text-sm text-gray-500">
+          <Link href="/terms" className="hover:text-gray-900 underline transition-colors">이용약관</Link>
+          <Link href="/privacy" className="hover:text-gray-900 underline transition-colors">개인정보처리방침</Link>
+        </div>
+        <p className="mt-2 text-xs text-gray-400">© {new Date().getFullYear()} I-Eum. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
