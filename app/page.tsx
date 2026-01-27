@@ -59,8 +59,8 @@ export default function Home() {
 
       <footer className="absolute bottom-6 w-full text-center">
         <div className="space-x-6 text-sm text-gray-500">
-          <Link href="/terms" className="hover:text-gray-900 underline transition-colors">이용약관</Link>
-          <Link href="/privacy" className="hover:text-gray-900 underline transition-colors">개인정보처리방침</Link>
+          <Link href="https://ieum-ai.com/terms" className="hover:text-gray-900 underline transition-colors">이용약관</Link>
+          <Link href="https://ieum-ai.com/privacy" className="hover:text-gray-900 underline transition-colors">개인정보처리방침</Link>
         </div>
         <p className="mt-2 text-xs text-gray-400">© {new Date().getFullYear()} I-Eum. All rights reserved.</p>
       </footer>
