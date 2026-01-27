@@ -1,6 +1,8 @@
+
 import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
 import { Button } from "@/components/ui/button"
+import { UserNav } from "@/components/user-nav"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
@@ -33,27 +35,9 @@ export async function SiteHeader() {
                 </Link>
                 <MainNav className="hidden md:flex mx-4" />
                 <div className="ml-auto flex items-center space-x-4">
-                    <div className="hidden md:flex flex-col items-end">
-                        <span className="text-sm font-medium text-foreground">
-                            {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">Patient Account</span>
-                    </div>
-                    <form
-                        className="hidden md:block"
-                        action={async () => {
-                            "use server"
-                            const supabase = await createClient()
-                            await supabase.auth.signOut()
-                            redirect("/login")
-                        }}
-                    >
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                            로그아웃
-                        </Button>
-                    </form>
+                    <UserNav user={user} />
                 </div>
-            </div>
-        </header>
+            </div >
+        </header >
     )
 }

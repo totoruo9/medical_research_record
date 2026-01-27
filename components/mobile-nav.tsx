@@ -13,7 +13,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet'
-import { Menu, Activity, FileText, Brain, ChevronRight, LayoutDashboard, History, LogOut, List } from 'lucide-react'
+import { Menu, Activity, FileText, Brain, ChevronRight, LayoutDashboard, History, LogOut, List, User } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function MobileNav() {
@@ -55,6 +55,11 @@ export function MobileNav() {
             title: '지난 분석',
             href: '/reports',
             icon: History
+        },
+        {
+            title: '마이페이지',
+            href: '/profile',
+            icon: User // Import User from lucide-react
         }
     ]
 
