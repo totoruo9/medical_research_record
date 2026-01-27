@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false)
@@ -29,11 +30,18 @@ export default function LoginPage() {
     return (
         <div className="flex h-screen items-center justify-center bg-gray-50">
             <div className="w-full max-w-md space-y-8 p-10 bg-white rounded-xl shadow-lg text-center">
-                <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-                    췌장암 환자 케어 플랫폼
-                </h2>
+                <div className="flex justify-center mb-6">
+                    <Image
+                        src="/logo_wide.png"
+                        alt="이음 (I-Eum)"
+                        width={220}
+                        height={70}
+                        className="object-contain h-auto"
+                        priority
+                    />
+                </div>
                 <p className="text-sm text-gray-500">
-                    건강 기록을 관리하고 AI 분석을 받기 위해 로그인해주세요.
+                    의무 기록을 안전하게 관리하고 AI 기반 정밀 분석을 시작하세요.
                 </p>
 
                 <Button

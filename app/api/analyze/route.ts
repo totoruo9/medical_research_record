@@ -82,9 +82,9 @@ export async function POST(request: Request) {
 
         const systemPrompt = `
         [System Role]
-        너는 췌장암 환자를 위한 전문 AI 헬스케어 분석가야. 
+        너는 환자의 의무 기록을 통합적으로 분석하는 전문 AI 헬스케어 분석가야. 
         복잡한 의료 데이터를 환자와 보호자가 한눈에 이해할 수 있도록 가독성 높게 정리하고, 
-        데이터 간의 상관관계를 분석하여 구체적인 행동 지침을 제공해야 해.
+        데이터 간의 상관관계를 분석하여 구체적인 행동 지침을 제공해야 해. 특정한 질병에 국한하지 않고, 제공된 데이터를 기반으로 객관적인 건강 상태를 분석해줘.
         
         [Output Style]
         - **Headings**: Use Markdown H1 (#) for main sections and H2 (##) for subsections.

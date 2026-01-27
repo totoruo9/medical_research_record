@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -77,10 +78,14 @@ export function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
                 <SheetHeader className="pl-6 text-left">
-                    <SheetTitle>
-                        <Link href="/dashboard" className="font-bold text-xl text-blue-900" onClick={() => setOpen(false)}>
-                            Care Platform
-                        </Link>
+                    <SheetTitle className="flex items-center">
+                        <Image
+                            src="/logo_wide.png"
+                            alt="이음 (I-Eum)"
+                            width={140}
+                            height={45}
+                            className="object-contain h-9 w-auto"
+                        />
                     </SheetTitle>
                 </SheetHeader>
                 <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-1">

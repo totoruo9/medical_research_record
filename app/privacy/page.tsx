@@ -1,11 +1,22 @@
 
 import { SiteHeader } from "@/components/site-header"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function PrivacyPage() {
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">
             <SiteHeader />
             <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+                <div className="mb-6">
+                    <Link href="/login">
+                        <Button variant="ghost" className="gap-2 pl-0 hover:bg-transparent hover:text-gray-900">
+                            <ArrowLeft className="h-4 w-4" />
+                            뒤로가기
+                        </Button>
+                    </Link>
+                </div>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-8">
                     <div className="border-b pb-6">
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">개인정보처리방침</h1>
@@ -14,7 +25,7 @@ export default function PrivacyPage() {
 
                     <div className="prose prose-gray max-w-none space-y-6">
                         <p>
-                            <strong>Care Platform</strong>(이하 "회사" 또는 "서비스")은 정보통신망 이용촉진 및 정보보호 등에 관한 법률, 개인정보보호법 등 관련 법령을 준수하며, 이용자의 개인정보를 소중하게 생각합니다. 본 개인정보처리방침은 회사가 이용자의 개인정보를 어떻게 수집, 이용, 보관 및 파기하는지에 대해 설명합니다.
+                            <strong>이음 (I-Eum)</strong>(이하 "회사" 또는 "서비스")은 정보통신망 이용촉진 및 정보보호 등에 관한 법률, 개인정보보호법 등 관련 법령을 준수하며, 이용자의 개인정보를 소중하게 생각합니다. 본 개인정보처리방침은 회사가 이용자의 개인정보를 어떻게 수집, 이용, 보관 및 파기하는지에 대해 설명합니다.
                         </p>
 
                         <section>
@@ -65,7 +76,7 @@ export default function PrivacyPage() {
                             <h2 className="text-xl font-semibold text-gray-900 mb-3">6. 개인정보 보호책임자 및 담당부서</h2>
                             <p className="mb-2">서비스 이용 중 발생하는 모든 개인정보보호 관련 민원은 아래로 연락 주시기 바랍니다.</p>
                             <ul className="list-disc pl-5 space-y-1 text-gray-600">
-                                <li><strong>이메일:</strong> support@care-platform.example.com</li>
+                                <li><strong>이메일:</strong> wlsgurrla10@gmail.com</li>
                             </ul>
                         </section>
                     </div>

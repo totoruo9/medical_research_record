@@ -13,35 +13,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://pancreatic-care-platform.up.railway.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` || 'http://localhost:3000'),
   title: {
-    default: "Care Platform - AI 정밀 건강 관리",
-    template: "%s | Care Platform",
+    default: "이음 (I-Eum) - 의무 기록 및 통합 분석",
+    template: "%s | 이음 (I-Eum)",
   },
-  description: "AI 전문의가 분석하는 췌장암/담도암 환자 맞춤형 건강 관리 플랫폼. 혈액 검사, CT 판독, iNKt 투여 기록을 통합 관리하세요.",
-  keywords: ["췌장암", "담도암", "건강관리", "AI분석", "혈액검사", "CT판독", "iNKt", "Care Platform"],
-  authors: [{ name: "Care Platform Team" }],
-  creator: "Care Platform",
-  publisher: "Care Platform",
+  description: "AI 전문의가 분석하는 환자 맞춤형 의무 기록 통합 관리 플랫폼. 혈액 검사, CT 판독, 투여 기록을 체계적으로 관리하고 분석합니다.",
+  keywords: ["의무기록", "건강관리", "AI분석", "혈액검사", "CT판독", "iNKt", "이음", "I-Eum", "투여기록"],
+  authors: [{ name: "I-Eum Team" }],
+  creator: "I-Eum",
+  publisher: "I-Eum",
   openGraph: {
-    title: "Care Platform - AI 정밀 건강 관리",
-    description: "AI 전문의가 분석하는 췌장암/담도암 환자 맞춤형 건강 관리 플랫폼",
-    url: "/",
-    siteName: "Care Platform",
-    locale: "ko_KR",
-    type: "website",
-    images: [{
-      url: "/og-image.png", // public 폴더에 og-image.png를 추가하세요 (1200x630 권장)
-      width: 1200,
-      height: 630,
-      alt: "Care Platform Preview",
-    }],
+    title: "이음 (I-Eum) - 의무 기록 및 통합 분석",
+    description: "AI 전문의가 분석하는 환자 맞춤형 의무 기록 통합 관리 플랫폼",
+    url: '/',
+    siteName: "이음 (I-Eum)",
+    locale: 'ko_KR',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: "I-Eum Service Preview",
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Care Platform",
-    description: "AI 전문의가 분석하는 췌장암/담도암 환자 맞춤형 건강 관리 플랫폼",
-    images: ["/og-image.png"],
+    card: 'summary_large_image',
+    title: "이음 (I-Eum)",
+    description: "AI 전문의가 분석하는 환자 맞춤형 의무 기록 통합 관리 플랫폼",
+    images: ['/og-image.png'],
   },
   icons: {
     icon: "/favicon.ico",

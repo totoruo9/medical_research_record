@@ -1,11 +1,22 @@
 
 import { SiteHeader } from "@/components/site-header"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function TermsPage() {
     return (
         <div className="flex min-h-screen flex-col bg-gray-50">
             <SiteHeader />
             <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+                <div className="mb-6">
+                    <Link href="/login">
+                        <Button variant="ghost" className="gap-2 pl-0 hover:bg-transparent hover:text-gray-900">
+                            <ArrowLeft className="h-4 w-4" />
+                            뒤로가기
+                        </Button>
+                    </Link>
+                </div>
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-8">
                     <div className="border-b pb-6">
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">서비스 이용약관</h1>
@@ -16,14 +27,14 @@ export default function TermsPage() {
                         <section>
                             <h2 className="text-xl font-semibold text-gray-900 mb-3">1. 목적</h2>
                             <p>
-                                본 약관은 <strong>Care Platform</strong>(이하 "회사" 또는 "서비스")이 제공하는 제반 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
+                                본 약관은 <strong>이음 (I-Eum)</strong>(이하 "회사" 또는 "서비스")이 제공하는 제반 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
                             </p>
                         </section>
 
                         <section>
                             <h2 className="text-xl font-semibold text-gray-900 mb-3">2. 용어의 정의</h2>
                             <ul className="list-disc pl-5 space-y-1 text-gray-600">
-                                <li>"서비스"란 단말기(PC, 휴대형단말기 등 각종 유무선 장치를 포함)에 상관없이 회원이 이용할 수 있는 Care Platform 및 관련 제반 서비스를 의미합니다.</li>
+                                <li>"서비스"란 단말기(PC, 휴대형단말기 등 각종 유무선 장치를 포함)에 상관없이 회원이 이용할 수 있는 이음 (I-Eum) 및 관련 제반 서비스를 의미합니다.</li>
                                 <li>"회원"이라 함은 서비스에 접속하여 본 약관에 따라 회사와 이용계약을 체결하고 회사가 제공하는 서비스를 이용하는 고객을 말합니다.</li>
                             </ul>
                         </section>
