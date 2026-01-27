@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` || 'http://localhost:3000'),
+  metadataBase: new URL('https://ieum-ai.com'),
   title: {
     default: "이음 (I-Eum) - 의무 기록 및 통합 분석",
     template: "%s | 이음 (I-Eum)",
@@ -48,6 +48,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
+  },
+  verification: {
+    google: 'sZOqQNyLvGR1xLlB0NQCA2XSFR9NY2dWEIHiJj5iTTQ',
   },
 };
 
