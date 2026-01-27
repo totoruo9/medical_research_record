@@ -13,7 +13,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet'
-import { Menu, Activity, FileText, Brain, ChevronRight, LayoutDashboard, History, LogOut } from 'lucide-react'
+import { Menu, Activity, FileText, Brain, ChevronRight, LayoutDashboard, History, LogOut, List } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function MobileNav() {
@@ -30,6 +30,11 @@ export function MobileNav() {
             title: '대시보드',
             href: '/dashboard',
             icon: LayoutDashboard
+        },
+        {
+            title: '전체 타임라인',
+            href: '/timeline',
+            icon: List
         },
         {
             title: '혈액 검사',
@@ -82,9 +87,9 @@ export function MobileNav() {
                         <Image
                             src="/logo_wide.png"
                             alt="이음 (I-Eum)"
-                            width={140}
-                            height={45}
-                            className="object-contain h-9 w-auto"
+                            width={150}
+                            height={42}
+                            className="object-contain h-[42px] w-auto"
                         />
                     </SheetTitle>
                 </SheetHeader>

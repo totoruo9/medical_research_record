@@ -2,6 +2,9 @@
 
 import { useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from '@/components/ui/badge'
+import { Activity, Scan, Syringe, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronUp, Download, Loader2, BarChart2, Trash2 } from 'lucide-react'
@@ -170,6 +173,50 @@ export function ReportItem({ report }: ReportItemProps) {
             {isExpanded && (
                 <div className="animate-in slide-in-from-top-2 duration-300 print-content" style={{ backgroundColor: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
                     <CardContent className="p-3 sm:p-6 md:p-8" ref={contentRef} style={{ backgroundColor: '#ffffff', color: '#111827' }}>
+
+                        {/* Option 5: Contextual Data Accordion */}
+                        <div className="mb-8 print:hidden">
+                            <Accordion type="single" collapsible className="bg-gray-50/50 rounded-xl border border-gray-200 px-4">
+                                <AccordionItem value="context" className="border-none">
+                                    <AccordionTrigger className="hover:no-underline py-3">
+                                        <div className="flex items-center gap-3 w-full">
+                                            <Badge variant="outline" className="bg-white text-gray-600 border-gray-300">데이터 근거</Badge>
+                                            <span className="text-sm font-medium text-gray-700">이 분석에 사용된 의료 기록 (펼쳐보기)</span>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pb-4 pt-1">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-left">
+                                            {/* Blood Test Summary from Reference Data */}
+                                            {bloodTests && bloodTests.length > 0 && (
+                                                <div className="border border-red-100 rounded-lg p-3 bg-red-50/30">
+                                                    <div className="flex items-center gap-2 mb-2 text-red-600 font-semibold text-xs uppercase">
+                                                        <Activity className="w-3.5 h-3.5" /> 혈액 검사 (최근 5회)
+                                                    </div>
+                                                    <div className="space-y-1 text-xs sm:text-sm">
+                                                        <p className="text-gray-700">
+                                                            최근 CA19-9: <span className="font-medium">{bloodTests[bloodTests.length - 1]?.ca_19_9 || '-'}</span>
+                                                        </p>
+                                                        <p className="text-gray-500">
+                                                            * 상세 수치는 아래 그래프를 확인하세요.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* CT Scan Placeholder - In real app, we need to fetch this or pass it in reference_data */}
+                                            <div className="border border-blue-100 rounded-lg p-3 bg-blue-50/30">
+                                                <div className="flex items-center gap-2 mb-2 text-blue-600 font-semibold text-xs uppercase">
+                                                    <Scan className="w-3.5 h-3.5" /> CT 및 영상진단
+                                                </div>
+                                                <div className="space-y-1 text-xs sm:text-sm">
+                                                    <p className="text-gray-500 italic">연동된 영상 판독 기록이 없습니다.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </div>
 
 
                         {/* Full Markdown Content first */}

@@ -26,7 +26,7 @@ export async function SiteHeader() {
                         alt="이음 (I-Eum)"
                         width={180}
                         height={55}
-                        className="object-contain h-12 w-auto"
+                        className="object-contain h-10 md:h-12 w-auto"
                         priority
                         unoptimized
                     />

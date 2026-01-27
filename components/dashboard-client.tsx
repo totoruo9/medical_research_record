@@ -11,6 +11,7 @@ import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { ReportItem } from '@/components/report-item'
+import { InviteManager } from '@/components/shared-care/invite-manager'
 
 export default function DashboardClient({ user }: { user: any }) {
     const [loading, setLoading] = useState(false)
@@ -217,55 +218,67 @@ export default function DashboardClient({ user }: { user: any }) {
                 </Card>
             </div>
 
-            {/* Recent Analysis Summary Card */}
-            {/* Recent Analysis Summary Card */}
-            {recentReports.length > 0 && (
-                <Card className="shadow-lg border-none ring-1 ring-black/5 overflow-hidden group py-0 gap-0">
-                    <CardHeader className="bg-gradient-to-br from-indigo-50/50 to-white pt-5 pb-0 gap-0 border-b border-indigo-50/50">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="flex items-center gap-2 text-indigo-950 text-lg font-bold">
-                                <div className="p-2 bg-indigo-100/50 rounded-xl group-hover:bg-indigo-100 transition-colors">
-                                    <Brain className="w-5 h-5 text-indigo-600" />
-                                </div>
-                                최근 AI 정밀 분석
-                            </CardTitle>
-                            <Button variant="ghost" className="text-indigo-600 hover:text-indigo-800 hover:bg-transparent font-medium h-auto text-xs p-0 pr-0" asChild>
-                                <Link href="/reports" className="flex items-center">
-                                    전체보기 <ChevronRight className="ml-0.5 w-3 h-3" />
-                                </Link>
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="divide-y divide-gray-100">
-                            {recentReports.map((report, index) => (
-                                <div key={report.id} className="p-5 sm:p-6 hover:bg-gray-50/50 transition-colors group/item">
-                                    <Link href="/reports" className="block">
-                                        <div className="flex items-start justify-between gap-4 mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm font-semibold text-gray-900 group-hover/item:text-indigo-700 transition-colors">
-                                                    {format(new Date(report.created_at), 'yyyy.MM.dd')} 분석 리포트
-                                                </span>
-                                                {index === 0 && (
-                                                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100">NEW</span>
-                                                )}
-                                            </div>
-                                            <span className="text-xs text-gray-400">
-                                                {format(new Date(report.created_at), 'HH:mm')}
-                                            </span>
+            {/* Row 2: Analysis & Tools */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Recent Analysis Summary Card (Spans 3 columns) */}
+                <div className="lg:col-span-3">
+                    {recentReports.length > 0 ? (
+                        <Card className="shadow-lg border-none ring-1 ring-black/5 overflow-hidden group py-0 gap-0 h-full">
+                            <CardHeader className="bg-gradient-to-br from-indigo-50/50 to-white pt-5 pb-0 gap-0 border-b border-indigo-50/50">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-2 text-indigo-950 text-lg font-bold">
+                                        <div className="p-2 bg-indigo-100/50 rounded-xl group-hover:bg-indigo-100 transition-colors">
+                                            <Brain className="w-5 h-5 text-indigo-600" />
                                         </div>
-                                        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                                            {report.content
-                                                ? report.content.replace(/#{1,6}\s|[*`]/g, '').trim()
-                                                : '분석 내용이 없습니다.'}
-                                        </p>
-                                    </Link>
+                                        최근 AI 정밀 분석
+                                    </CardTitle>
+                                    <Button variant="ghost" className="text-indigo-600 hover:text-indigo-800 hover:bg-transparent font-medium h-auto text-xs p-0 pr-0" asChild>
+                                        <Link href="/reports" className="flex items-center">
+                                            전체보기 <ChevronRight className="ml-0.5 w-3 h-3" />
+                                        </Link>
+                                    </Button>
                                 </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-gray-100">
+                                    {recentReports.slice(0, 3).map((report, index) => (
+                                        <div key={report.id} className="p-5 sm:p-6 hover:bg-gray-50/50 transition-colors group/item">
+                                            <Link href="/reports" className="block">
+                                                <div className="flex items-start justify-between gap-4 mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-semibold text-gray-900 group-hover/item:text-indigo-700 transition-colors">
+                                                            {format(new Date(report.created_at), 'yyyy.MM.dd')} 분석 리포트
+                                                        </span>
+                                                        {index === 0 && (
+                                                            <span className="text-[10px] font-medium px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100">NEW</span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs text-gray-400">
+                                                        {format(new Date(report.created_at), 'HH:mm')}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                                    {report.content
+                                                        ? report.content.replace(/#{1,6}\s|[*`]/g, '').trim()
+                                                        : '분석 내용이 없습니다.'}
+                                                </p>
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Card className="h-full flex items-center justify-center p-10 text-gray-500 bg-white border-dashed">
+                            <p>생성된 분석 리포트가 없습니다.</p>
+                        </Card>
+                    )}
+                </div>
+
+                {/* Side Column: Invite & Other Tools */}
+
+            </div>
+
 
             {/* Analysis Result Modal */}
             <Dialog open={showResultModal} onOpenChange={setShowResultModal}>

@@ -52,6 +52,9 @@ export function MainNav({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                     <DropdownMenuItem asChild>
+                        <Link href="/timeline" className="w-full cursor-pointer font-medium">전체 타임라인</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                         <Link href="/blood-tests" className="w-full cursor-pointer">혈액 검사</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

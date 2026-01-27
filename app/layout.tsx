@@ -54,17 +54,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+import { checkUserOnboardingStatus } from "@/lib/actions/patient"
+import { OnboardingModal } from "@/components/onboarding-modal"
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  {/* 
+  const { isOnboarded, user } = await checkUserOnboardingStatus()
+  const showOnboarding = !!user && !isOnboarded 
+  */}
+
   return (
     <html lang="ko">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        {/* <OnboardingModal show={showOnboarding} /> */}
       </body>
     </html>
   );
