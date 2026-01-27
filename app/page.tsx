@@ -1,32 +1,61 @@
+'use client'
 
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Home() {
+  const [loading, setLoading] = useState(false)
+
+  const handleLogin = async () => {
+    const supabase = createClient()
+    setLoading(true)
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+        scopes: 'https://www.googleapis.com/auth/spreadsheets.readonly email profile',
+      },
+    })
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gradient-to-br from-indigo-50 to-blue-50">
-      <div className="text-center space-y-6 max-w-2xl flex flex-col items-center">
-        <Image
-          src="/logo_wide.png"
-          alt="이음 (I-Eum)"
-          width={240}
-          height={80}
-          className="mb-4 object-contain h-auto"
-          priority
-        />
-        <p className="text-lg text-gray-600">
-          혈액 검사, 영상 판독, 치료 기록을 한곳에서 통합 관리하고 <br />
-          AI 전문의의 정밀 분석 리포트를 받아보세요.
+    <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md space-y-8 p-10 bg-white rounded-xl shadow-lg text-center">
+        <div className="flex justify-center mb-6">
+          <Image
+            src="/logo_wide.png"
+            alt="이음 (I-Eum)"
+            width={220}
+            height={70}
+            className="object-contain h-auto"
+            priority
+          />
+        </div>
+        <p className="text-sm text-gray-500">
+          의무 기록을 안전하게 관리하고 AI 기반 정밀 분석을 시작하세요.
         </p>
-        <div className="pt-8">
-          <Link href="/login">
-            <Button size="lg" className="px-8 py-6 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
-              지금 시작하기
-            </Button>
-          </Link>
+
+        <Button
+          onClick={handleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2"
+        >
+          {loading ? <Loader2 className="animate-spin" /> : null}
+          Google 계정으로 계속하기
+        </Button>
+
+        <div className="pt-4 text-xs text-center text-gray-400 relative z-10">
+          계속 진행함으로써 귀하는 <Link href="/terms" className="hover:text-gray-600 underline cursor-pointer">이용약관</Link> 및 <Link href="/privacy" className="hover:text-gray-600 underline cursor-pointer">개인정보처리방침</Link>에 동의하게 됩니다.
         </div>
       </div>
-    </main>
-  );
+    </div>
+  )
 }
