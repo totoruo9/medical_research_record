@@ -8,6 +8,8 @@ import { format } from 'date-fns'
 import { SiteHeader } from '@/components/site-header'
 import { BloodTestList } from '@/components/blood-test-list'
 
+import { BloodTestExportButton } from '@/components/blood-test-export-button'
+
 export default async function BloodTestsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -27,12 +29,9 @@ export default async function BloodTestsPage() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <h1 className="text-xl sm:text-3xl font-bold text-gray-900 whitespace-nowrap">혈액 검사 기록</h1>
                             <div className="flex w-full sm:w-auto gap-2">
-                                <Link href="/blood-tests/import" className="flex-1 sm:flex-none">
-                                    <Button variant="outline" className="w-full gap-2">
-                                        <FileSpreadsheet className="w-4 h-4" />
-                                        시트에서 불러오기
-                                    </Button>
-                                </Link>
+                                <div className="flex-1 sm:flex-none">
+                                    <BloodTestExportButton tests={bloodTests || []} />
+                                </div>
                                 <Link href="/blood-tests/new" className="flex-1 sm:flex-none">
                                     <Button className="w-full gap-2">
                                         <PlusCircle className="w-4 h-4" />

@@ -21,7 +21,7 @@ export default function Home() {
           access_type: 'offline',
           prompt: 'consent',
         },
-        scopes: 'https://www.googleapis.com/auth/spreadsheets.readonly email profile',
+        scopes: 'email profile',
       },
     })
   }
