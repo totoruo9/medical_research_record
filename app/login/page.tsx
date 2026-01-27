@@ -43,6 +43,10 @@ export default function LoginPage() {
                     {loading ? <Loader2 className="animate-spin" /> : null}
                     Google 계정으로 계속하기
                 </Button>
+
+                <div className="pt-4 text-xs text-center text-gray-400">
+                    계속 진행함으로써 귀하는 <a href="/terms" className="hover:text-gray-600 underline">이용약관</a> 및 <a href="/privacy" className="hover:text-gray-600 underline">개인정보처리방침</a>에 동의하게 됩니다.
+                </div>
             </div>
         </div>
     )
