@@ -27,6 +27,8 @@ import { BloodTestForm } from '@/components/blood-test-form'
 import { CTScanForm } from '@/components/ct-scan-form'
 import { InktRecordForm } from '@/components/inkt-record-form'
 import { toast } from 'sonner'
+import { pdf } from '@react-pdf/renderer'
+import { ReportPDF } from '@/components/report-pdf'
 
 type BloodTest = any
 type Report = any
@@ -104,6 +106,22 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
         } catch (error) {
             console.error('Delete error:', error)
             toast.error('리포트 삭제에 실패했습니다.')
+        }
+    }
+
+    const handleDownloadPDF = async (report: any) => {
+        try {
+            const blob = await pdf(<ReportPDF report={report} />).toBlob()
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `AI_분석리포트_${format(new Date(report.created_at), 'yyyyMMdd')}.pdf`
+            link.click()
+            URL.revokeObjectURL(url)
+            toast.success('PDF 다운로드가 시작되었습니다.')
+        } catch (error) {
+            console.error('PDF error:', error)
+            toast.error('PDF 다운로드에 실패했습니다.')
         }
     }
 
@@ -534,7 +552,12 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-gray-400 font-medium mr-2">{format(new Date(report.created_at), 'HH:mm')}</span>
-                                            <LButton variant="outline" size="sm" className="h-8 text-xs gap-1.5 text-gray-600">
+                                            <LButton
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-xs gap-1.5 text-gray-600"
+                                                onClick={() => handleDownloadPDF(report)}
+                                            >
                                                 <FileText className="h-3.5 w-3.5" /> PDF
                                             </LButton>
                                             <LButton
