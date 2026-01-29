@@ -154,7 +154,7 @@ export function FamilyManager({ initialMembers, userRole, inviteCode: initialCod
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-2 md:hidden">
                                     <Button variant="outline" className="w-full" onClick={copyToClipboard}>
                                         <Copy className="w-4 h-4 mr-2" />
                                         복사

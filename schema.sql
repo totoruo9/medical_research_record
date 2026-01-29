@@ -55,6 +55,8 @@ create table inkt_records (
   blood_collection_date date not null,
   first_admin_date date,
   second_admin_date date,
+  notes text,
+  treatment_effect text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

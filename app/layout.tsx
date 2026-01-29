@@ -57,6 +57,8 @@ export const metadata: Metadata = {
 import { checkUserOnboardingStatus } from "@/lib/actions/patient"
 import { OnboardingModal } from "@/components/onboarding-modal"
 
+import { Toaster } from "@/components/ui/sonner"
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +75,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Toaster position="top-center" richColors />
         {/* <OnboardingModal show={showOnboarding} /> */}
       </body>
     </html>
