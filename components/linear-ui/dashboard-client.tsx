@@ -533,7 +533,7 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                     <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 gap-4">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1.5">
-                                                <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+                                                <h3 className="text-2xl font-bold text-gray-700 tracking-tight">
                                                     {format(new Date(report.created_at), 'yyyy년 MM월 dd일 분석 리포트')}
                                                 </h3>
                                                 <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold border border-blue-100">상세</span>
@@ -578,19 +578,30 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                         </div>
                                     </details>
 
-                                    {/* Markdown Content */}
-                                    <div className="prose prose-sm max-w-none text-gray-800 
-                                        prose-headings:font-bold prose-headings:text-gray-900 
-                                        prose-h1:text-2xl prose-h1:mt-16 prose-h1:mb-6 prose-h1:pb-4 prose-h1:border-b prose-h1:border-gray-100 prose-h1:flex prose-h1:items-center prose-h1:gap-3
-                                        prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-gray-800
-                                        prose-p:leading-relaxed prose-p:mb-6 prose-p:text-base
-                                        prose-strong:text-gray-900 prose-strong:font-bold
-                                        prose-ul:my-6 prose-li:my-2
-                                        prose-table:w-full prose-table:border-collapse prose-table:my-8 prose-table:border prose-table:border-gray-200
-                                        prose-thead:bg-gray-50 prose-th:text-left prose-th:p-4 prose-th:text-sm prose-th:font-semibold prose-th:text-gray-700 prose-th:uppercase prose-th:border-b prose-th:border-gray-200
-                                        prose-td:p-4 prose-td:text-sm prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-700
-                                    ">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.content || ''}</ReactMarkdown>
+                                    {/* Markdown Content - Explicit Component Mapping */}
+                                    <div className="text-gray-800">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                h1: ({ node, ...props }) => <h1 className="text-xl font-bold mt-10 mb-4 flex items-center gap-2 text-gray-700" {...props} />,
+                                                h2: ({ node, ...props }) => <h2 className="text-lg font-bold mt-8 mb-3 text-gray-600" {...props} />,
+                                                h3: ({ node, ...props }) => <h3 className="text-base font-bold mt-6 mb-2 text-gray-600" {...props} />,
+                                                p: ({ node, ...props }) => <p className="text-base leading-relaxed mb-8 text-gray-600" {...props} />,
+                                                ul: ({ node, ...props }) => <ul className="mt-0 mb-8 pl-6 list-disc space-y-2 text-gray-600" {...props} />,
+                                                ol: ({ node, ...props }) => <ol className="mt-0 mb-8 pl-6 list-decimal space-y-2 text-gray-600" {...props} />,
+                                                li: ({ node, ...props }) => <li className="mb-2 pl-1" {...props} />,
+                                                table: ({ node, ...props }) => <div className="overflow-x-auto mt-0 mb-8"><table className="w-full border-collapse border border-gray-200" {...props} /></div>,
+                                                thead: ({ node, ...props }) => <thead className="bg-gray-50" {...props} />,
+                                                th: ({ node, ...props }) => <th className="text-left p-4 text-xs font-extrabold text-gray-500 uppercase border-b border-gray-200" {...props} />,
+                                                td: ({ node, ...props }) => <td className="p-4 text-sm border-b border-gray-100 text-gray-600" {...props} />,
+                                                strong: ({ node, ...props }) => <strong className="font-extrabold text-gray-700" {...props} />,
+                                                blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-blue-200 pl-4 py-1 my-8 bg-blue-50/50 italic text-gray-500 rounded-r" {...props} />,
+                                                a: ({ node, ...props }) => <a className="text-blue-600 hover:underline font-medium" {...props} />,
+                                                hr: ({ node, ...props }) => <hr className="my-10 border-gray-100" {...props} />
+                                            }}
+                                        >
+                                            {report.content || ''}
+                                        </ReactMarkdown>
                                     </div>
                                 </div>
                             ))}
