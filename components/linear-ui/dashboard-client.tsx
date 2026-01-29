@@ -11,10 +11,11 @@ import {
     LTimeline, LTimelineDate, LTimelineItem, LTimelineIcon, LTimelineContent
 } from '@/components/linear-ui'
 import {
+
     Activity, FileText, Brain, ChevronRight, Plus, Calendar,
     Search, Bell, Settings, LogOut, User, LayoutDashboard,
     Stethoscope, Clock, AlertCircle, CheckCircle2, Info, ChevronDown, Download, Trash2, Edit2,
-    Syringe, Pill
+    Syringe, Pill, Loader2
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -25,6 +26,7 @@ import { cn } from '@/lib/utils'
 import { BloodTestForm } from '@/components/blood-test-form'
 import { CTScanForm } from '@/components/ct-scan-form'
 import { InktRecordForm } from '@/components/inkt-record-form'
+import { toast } from 'sonner'
 
 type BloodTest = any
 type Report = any
@@ -32,25 +34,38 @@ type CTScan = any
 type InktRecord = any
 type UserProfile = { user_metadata: { full_name?: string, avatar_url?: string, email?: string } }
 
-// Helper for status logic (ported from blood-test-list.tsx)
-const BLOOD_TEST_RANGES: Record<string, { min: number; max: number; unit: string }> = {
-    'ca19_9': { min: 0, max: 37, unit: 'U/mL' },
-    'cea': { min: 0, max: 5, unit: 'ng/mL' },
-    'wbc': { min: 4, max: 10, unit: '10^3/uL' }, // 4000-10000
-    'plt': { min: 150, max: 450, unit: '10^3/uL' }, // 150000-450000
-    'neutrophil': { min: 40, max: 75, unit: '%' }, // 40-75%
-    'alb': { min: 3.5, max: 5.2, unit: 'g/dL' },
-    'protein': { min: 6.0, max: 8.3, unit: 'g/dL' },
-    'lymphocyte': { min: 20, max: 45, unit: '%' }
+import { BLOOD_TEST_RANGES } from '@/lib/constants'
+
+// Helper for status logic with detailed severity
+function getDetailedMetricStatus(key: string, value: number | null | undefined) {
+    if (value === null || value === undefined) return { status: 'normal', color: 'text-gray-400', bg: 'bg-gray-50' }
+
+    const range = BLOOD_TEST_RANGES[key]
+    if (!range) return { status: 'normal', color: 'text-gray-900', bg: 'bg-gray-50' }
+
+    // Normal
+    if (value >= range.min && value <= range.max) {
+        return { status: 'normal', color: 'text-gray-900', bg: 'bg-gray-50' }
+    }
+
+    // Abnormal logic
+    let deviation = 0
+    if (value > range.max) deviation = (value - range.max) / range.max
+    if (value < range.min) deviation = (range.min - value) / range.min
+
+    // Severity Thresholds
+    if (deviation < 0.2) return { status: 'caution', color: 'text-yellow-600', bg: 'bg-yellow-50' }
+    if (deviation < 1.0) return { status: 'warning', color: 'text-orange-600', bg: 'bg-orange-50' }
+    return { status: 'critical', color: 'text-red-600', bg: 'bg-red-50' }
 }
 
 function getMetricStatus(key: string, value: number | null) {
-    if (value === null || value === undefined) return { status: 'normal' as const, color: 'text-gray-500' }
-    const range = BLOOD_TEST_RANGES[key]
-    if (!range) return { status: 'normal' as const, color: 'text-gray-500' }
-
-    if (value >= range.min && value <= range.max) return { status: 'normal' as const, color: 'text-green-600' }
-    return { status: 'warning' as const, color: 'text-amber-600' }
+    // Legacy wrapper or keep for compatibility if used elsewhere (L480)
+    const detailed = getDetailedMetricStatus(key, value)
+    return {
+        status: detailed.status === 'normal' ? 'normal' : 'warning',
+        color: detailed.color
+    }
 }
 
 interface LinearDashboardClientProps {
@@ -60,25 +75,59 @@ interface LinearDashboardClientProps {
     initialTimeline: any[] // Mixed types
 }
 
-export function LinearDashboardClient({ user, initialBloodTests, initialReports, initialTimeline }: LinearDashboardClientProps) {
+export default function LinearDashboardClient({ user, initialBloodTests, initialTimeline, initialReports }: LinearDashboardClientProps) {
     const [activeTab, setActiveTab] = useState('dashboard')
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [visibleItems, setVisibleItems] = useState(5)
+    // AI Analysis State
+    const [isAnalyzing, setIsAnalyzing] = useState(false)
+    const [hasUnreadNotification, setHasUnreadNotification] = useState(false)
+    const [analysisResultReady, setAnalysisResultReady] = useState(false)
+    const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false)
+
     const router = useRouter()
     const supabase = createClient()
 
     // Derived Metrics
     const latestTest = initialBloodTests[0]
     const metrics = [
-        { key: 'ca19_9', label: 'CA 19-9', value: latestTest?.ca19_9 },
+        { key: 'ca_19_9', label: 'CA 19-9', value: latestTest?.ca_19_9 },
         { key: 'cea', label: 'CEA', value: latestTest?.cea },
-        { key: 'wbc', label: 'WBC', value: latestTest?.wbc },
-        { key: 'plt', label: 'PLT', value: latestTest?.plt }
+        { key: 'wbc_count', label: 'WBC', value: latestTest?.wbc_count },
+        { key: 'neutrophil', label: 'Neutrophil', value: latestTest?.neutrophil }
     ]
 
     const handleSignOut = async () => {
         await supabase.auth.signOut()
         router.refresh()
+    }
+
+    const handleAnalysis = async () => {
+        setIsAnalyzing(true)
+        setAnalysisResultReady(false) // Reset previous result
+
+        try {
+            const res = await fetch('/api/analyze', { method: 'POST' })
+            const data = await res.json()
+
+            if (!res.ok) {
+                throw new Error(data.error || 'AI 분석 중 오류가 발생했습니다.')
+            }
+
+            setHasUnreadNotification(true)
+            setAnalysisResultReady(true)
+            toast.success("AI 정밀 분석이 완료되었습니다.", {
+                description: "AI 분석 리포트에서 결과를 확인해주세요."
+            })
+            router.refresh() // Refresh to load the new report from server
+        } catch (error: any) {
+            console.error('Analysis failed:', error)
+            toast.error("분석 실패", {
+                description: error.message || "분석을 완료할 수 없습니다."
+            })
+        } finally {
+            setIsAnalyzing(false)
+        }
     }
 
     return (
@@ -87,7 +136,7 @@ export function LinearDashboardClient({ user, initialBloodTests, initialReports,
             <LHeader>
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
-                        <div className="h-8 w-8 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold">I</div>
+                        <img src="/favicon.ico" alt="I-Eum" className="h-8 w-8 rounded-lg" />
                         <span className="text-lg font-bold text-gray-900 tracking-tight">I-Eum</span>
                     </div>
                     <LNav className="hidden md:flex space-x-1">
@@ -98,10 +147,47 @@ export function LinearDashboardClient({ user, initialBloodTests, initialReports,
                 </div>
                 <div className="flex items-center gap-4">
                     <button className="text-gray-500 hover:text-gray-700 transition-colors"><Search className="h-5 w-5" /></button>
-                    <button className="text-gray-500 hover:text-gray-700 transition-colors relative">
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </button>
+                    <LDropdown
+                        open={notificationDropdownOpen}
+                        onOpenChange={setNotificationDropdownOpen}
+                        trigger={
+                            <button
+                                className="text-gray-500 hover:text-gray-700 transition-colors relative flex items-center justify-center p-1"
+                                onClick={() => {
+                                    setHasUnreadNotification(false)
+                                    // Standard dropdown behavior will toggle open state, but we also clear notification
+                                }}
+                            >
+                                <Bell className="h-5 w-5" />
+                                {hasUnreadNotification && (
+                                    <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
+                                )}
+                            </button>
+                        }>
+                        <div className="py-1 min-w-[240px]">
+                            <div className="px-3 py-2 border-b border-gray-100 text-xs font-semibold text-gray-500">알림</div>
+                            {analysisResultReady ? (
+                                <LDropdownItem onClick={() => {
+                                    setActiveTab('analysis');
+                                    setHasUnreadNotification(false);
+                                    setAnalysisResultReady(false);
+                                    setNotificationDropdownOpen(false);
+                                }}>
+                                    <div className="flex flex-col items-start gap-0.5">
+                                        <div className="flex items-center gap-1.5 font-medium text-gray-900">
+                                            <Brain className="h-3.5 w-3.5 text-purple-600" />
+                                            AI 정밀 분석 완료
+                                        </div>
+                                        <span className="text-xs text-gray-500">분석 리포트 확인하기</span>
+                                    </div>
+                                </LDropdownItem>
+                            ) : (
+                                <div className="px-3 py-6 text-center text-sm text-gray-400">
+                                    메시지가 없습니다.
+                                </div>
+                            )}
+                        </div>
+                    </LDropdown>
                     <div className="h-6 w-px bg-gray-200 mx-1"></div>
                     <LProfile
                         name={user.user_metadata.full_name || 'User'}
@@ -121,9 +207,29 @@ export function LinearDashboardClient({ user, initialBloodTests, initialReports,
                                 <h1 className="text-2xl font-bold text-gray-900">안녕하세요, {user.user_metadata.full_name || '환자'}님 👋</h1>
                                 <p className="text-gray-500 mt-1">오늘의 건강 상태 요약입니다.</p>
                             </div>
-                            <LButton onClick={() => setIsUploadModalOpen(true)}>
-                                <Plus className="h-4 w-4 mr-1.5" /> 기록 추가
-                            </LButton>
+                            <div className="flex gap-2">
+                                <LButton
+                                    onClick={handleAnalysis}
+                                    disabled={isAnalyzing}
+                                    className="bg-purple-50 text-purple-600 border-purple-100 hover:bg-purple-100 hover:border-purple-200 min-w-[160px]"
+                                    variant="outline"
+                                >
+                                    {isAnalyzing ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                                            AI 정밀분석 진행중
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Brain className="h-4 w-4 mr-1.5" />
+                                            AI 정밀 분석
+                                        </>
+                                    )}
+                                </LButton>
+                                <LButton onClick={() => setIsUploadModalOpen(true)}>
+                                    <Plus className="h-4 w-4 mr-1.5" /> 기록 추가
+                                </LButton>
+                            </div>
                         </div>
 
                         {/* Status Overview Cards */}
@@ -176,16 +282,22 @@ export function LinearDashboardClient({ user, initialBloodTests, initialReports,
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {metrics.map((m, i) => {
-                                            const status = getMetricStatus(m.key, m.value ?? null)
+                                            const status = getDetailedMetricStatus(m.key, m.value)
                                             return (
                                                 <LCard key={i} hover className="p-4">
                                                     <div className="text-xs text-gray-500 mb-2 font-medium">{m.label}</div>
                                                     <div className="flex items-end gap-1.5">
                                                         <span className={cn("text-2xl font-bold tracking-tight", status.color)}>{m.value ?? '-'}</span>
-                                                        <span className="text-xs text-gray-400 mb-1.5">{BLOOD_TEST_RANGES[m.key]?.unit}</span>
+                                                        <span className="text-xs text-gray-400 mb-1.5">{BLOOD_TEST_RANGES[m.key]?.unit || ''}</span>
                                                     </div>
-                                                    <div className={cn("mt-2 flex items-center gap-1 text-[10px] font-medium", status.color)}>
-                                                        {status.status === 'normal' ? <><CheckCircle2 className="h-3 w-3" /> 정상 범위</> : <><AlertCircle className="h-3 w-3" /> 주의 필요</>}
+                                                    <div className={cn("mt-2 flex items-center gap-1 text-[10px] font-medium", status.status === 'normal' ? "text-blue-600" : status.color)}>
+                                                        {status.status === 'normal' ? (
+                                                            <><CheckCircle2 className="h-3 w-3" /> 정상 범위</>
+                                                        ) : (
+                                                            <><AlertCircle className="h-3 w-3" />
+                                                                {status.status === 'caution' ? '주의' : status.status === 'warning' ? '경고' : '위험'}
+                                                            </>
+                                                        )}
                                                     </div>
                                                 </LCard>
                                             )
@@ -416,14 +528,71 @@ export function LinearDashboardClient({ user, initialBloodTests, initialReports,
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold text-gray-900">AI 분석 리포트</h2>
                             {initialReports.map((report) => (
-                                <LCard key={report.id}>
-                                    <LCardHeader><LCardTitle>{format(new Date(report.created_at), 'yyyy.MM.dd')} 리포트</LCardTitle></LCardHeader>
-                                    <LCardContent>
-                                        <div className="prose prose-sm max-w-none text-gray-700">
-                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.content || ''}</ReactMarkdown>
+                                <div key={report.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                                    {/* Report Header */}
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 gap-4">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+                                                    {format(new Date(report.created_at), 'yyyy년 MM월 dd일 분석 리포트')}
+                                                </h3>
+                                                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold border border-blue-100">상세</span>
+                                            </div>
+                                            <p className="text-sm text-gray-500">AI 전문의가 분석한 건강 상태 리포트입니다.</p>
                                         </div>
-                                    </LCardContent>
-                                </LCard>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-400 font-medium mr-2">{format(new Date(report.created_at), 'HH:mm')}</span>
+                                            <LButton variant="outline" size="sm" className="h-8 text-xs gap-1.5 text-gray-600">
+                                                <FileText className="h-3.5 w-3.5" /> PDF
+                                            </LButton>
+                                            <LButton variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-500">
+                                                <Trash2 className="h-4 w-4" />
+                                            </LButton>
+                                        </div>
+                                    </div>
+
+                                    {/* Data Source Toggle */}
+                                    <details className="mb-8 group border border-gray-100 rounded-lg open:bg-gray-50/50 transition-colors">
+                                        <summary className="flex items-center justify-between p-3.5 cursor-pointer list-none select-none hover:bg-gray-50 rounded-lg transition-colors">
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">데이터 근거</span>
+                                                <span className="text-xs text-gray-500 font-medium group-open:text-gray-900">이 분석에 사용된 의료 기록 (펼쳐보기)</span>
+                                            </div>
+                                            <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform duration-200" />
+                                        </summary>
+                                        <div className="px-4 pb-4 pt-0">
+                                            <div className="mt-3 bg-white border border-gray-200 rounded-md p-3 text-xs text-gray-500 font-mono overflow-x-auto">
+                                                {report.reference_data ? (
+                                                    <div className="space-y-2">
+                                                        <p className="font-bold text-gray-700 font-sans mb-1">[사용된 데이터 요약]</p>
+                                                        <div>• 혈액 검사: {report.reference_data.blood_tests?.length || 0}건</div>
+                                                        <div>• CT 검사: {report.reference_data.ct_scans?.length || 0}건</div>
+                                                        {report.reference_data.blood_tests?.[0] && (
+                                                            <div className="mt-2 pt-2 border-t border-dashed">
+                                                                최근 검사일: {report.reference_data.blood_tests[0].test_date}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : "참고된 데이터가 없습니다."}
+                                            </div>
+                                        </div>
+                                    </details>
+
+                                    {/* Markdown Content */}
+                                    <div className="prose prose-sm max-w-none text-gray-800 
+                                        prose-headings:font-bold prose-headings:text-gray-900 
+                                        prose-h1:text-2xl prose-h1:mt-16 prose-h1:mb-6 prose-h1:pb-4 prose-h1:border-b prose-h1:border-gray-100 prose-h1:flex prose-h1:items-center prose-h1:gap-3
+                                        prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h2:text-gray-800
+                                        prose-p:leading-relaxed prose-p:mb-6 prose-p:text-base
+                                        prose-strong:text-gray-900 prose-strong:font-bold
+                                        prose-ul:my-6 prose-li:my-2
+                                        prose-table:w-full prose-table:border-collapse prose-table:my-8 prose-table:border prose-table:border-gray-200
+                                        prose-thead:bg-gray-50 prose-th:text-left prose-th:p-4 prose-th:text-sm prose-th:font-semibold prose-th:text-gray-700 prose-th:uppercase prose-th:border-b prose-th:border-gray-200
+                                        prose-td:p-4 prose-td:text-sm prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-700
+                                    ">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.content || ''}</ReactMarkdown>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     )

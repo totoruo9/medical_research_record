@@ -98,8 +98,10 @@ export async function POST(request: Request) {
         - If stable, output: "특이 사항 없음: 현재 검사 결과는 안정적입니다."
 
         # 📊 2. 혈액 검사 지표 변화 (Blood Test Trends)
-        - Create a Markdown comparison table: | 항목 | 이전 | 현재 | 상태 | 분석 |
-        - Highlight changes in Glucose, Albumin, Tumor Markers, Electrolytes.
+        - Create a Markdown comparison table.
+        - Table Header Format: | 항목 | 이전 (Date) | 현재 (Date) | 상태 | 분석 |
+        - Replace 'Date' with actual test dates (e.g., 2026-02-04).
+        - Highlight significant changes in Glucose, Albumin, Tumor Markers, Electrolytes.
 
         # 🔍 3. 영상 검사 분석 (CT Scan)
         - Analyze Primary Site, Metastasis, Complications.

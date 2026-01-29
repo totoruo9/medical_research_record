@@ -188,15 +188,27 @@ LImageCard.displayName = "LImageCard"
 // ============================================
 // DROPDOWN COMPONENT
 // ============================================
-export const LDropdown = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { trigger: React.ReactNode; open?: boolean }>(
-    ({ className, trigger, open, children, ...props }, ref) => {
-        const [isOpen, setIsOpen] = React.useState(open || false)
+export const LDropdown = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { trigger: React.ReactNode; open?: boolean; onOpenChange?: (open: boolean) => void }>(
+    ({ className, trigger, open, onOpenChange, children, ...props }, ref) => {
+        const [isOpenState, setIsOpenState] = React.useState(open || false)
+
+        // Determine if controlled or uncontrolled
+        const isControlled = open !== undefined
+        const isOpen = isControlled ? open : isOpenState
+
+        const handleOpenChange = (newOpen: boolean) => {
+            if (!isControlled) {
+                setIsOpenState(newOpen)
+            }
+            onOpenChange?.(newOpen)
+        }
+
         return (
             <div ref={ref} className={cn("relative inline-block", className)} {...props}>
-                <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+                <div onClick={() => handleOpenChange(!isOpen)}>{trigger}</div>
                 {isOpen && (
                     <>
-                        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+                        <div className="fixed inset-0 z-40" onClick={() => handleOpenChange(false)} />
                         <div className="absolute right-0 mt-1 min-w-[160px] bg-popover border border-border rounded shadow-lg z-50">
                             {children}
                         </div>

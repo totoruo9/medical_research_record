@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { LinearDashboardClient } from '@/components/linear-ui/dashboard-client'
+import LinearDashboardClient from '@/components/linear-ui/dashboard-client'
 
 export default async function LinearRedesignPage() {
     const supabase = await createClient()
