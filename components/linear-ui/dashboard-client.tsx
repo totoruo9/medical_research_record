@@ -88,6 +88,25 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
     const router = useRouter()
     const supabase = createClient()
 
+    const handleDeleteReport = async (reportId: string) => {
+        if (!confirm('이 분석 리포트를 삭제하시겠습니까?')) return
+
+        try {
+            const { error } = await supabase
+                .from('ai_reports')
+                .delete()
+                .eq('id', reportId)
+
+            if (error) throw error
+
+            toast.success('리포트가 삭제되었습니다.')
+            router.refresh()
+        } catch (error) {
+            console.error('Delete error:', error)
+            toast.error('리포트 삭제에 실패했습니다.')
+        }
+    }
+
     // Derived Metrics
     const latestTest = initialBloodTests[0]
     const metrics = [
@@ -545,7 +564,12 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                             <LButton variant="outline" size="sm" className="h-8 text-xs gap-1.5 text-gray-600">
                                                 <FileText className="h-3.5 w-3.5" /> PDF
                                             </LButton>
-                                            <LButton variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-500">
+                                            <LButton
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-gray-400 hover:text-red-500"
+                                                onClick={() => handleDeleteReport(report.id)}
+                                            >
                                                 <Trash2 className="h-4 w-4" />
                                             </LButton>
                                         </div>
@@ -556,7 +580,7 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                         <summary className="flex items-center justify-between p-3.5 cursor-pointer list-none select-none hover:bg-gray-50 rounded-lg transition-colors">
                                             <div className="flex items-center gap-2.5">
                                                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">데이터 근거</span>
-                                                <span className="text-xs text-gray-500 font-medium group-open:text-gray-900">이 분석에 사용된 의료 기록 (펼쳐보기)</span>
+                                                <span className="text-xs text-gray-500 font-medium">이 분석에 사용된 의료 기록 (펼쳐보기)</span>
                                             </div>
                                             <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform duration-200" />
                                         </summary>
