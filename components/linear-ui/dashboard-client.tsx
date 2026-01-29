@@ -536,7 +536,7 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                                 <h3 className="text-2xl font-bold text-gray-700 tracking-tight">
                                                     {format(new Date(report.created_at), 'yyyy년 MM월 dd일 분석 리포트')}
                                                 </h3>
-                                                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold border border-blue-100">상세</span>
+
                                             </div>
                                             <p className="text-sm text-gray-500">AI 전문의가 분석한 건강 상태 리포트입니다.</p>
                                         </div>
@@ -560,21 +560,20 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                             </div>
                                             <ChevronDown className="h-4 w-4 text-gray-400 group-open:rotate-180 transition-transform duration-200" />
                                         </summary>
-                                        <div className="px-4 pb-4 pt-0">
-                                            <div className="mt-3 bg-white border border-gray-200 rounded-md p-3 text-xs text-gray-500 font-mono overflow-x-auto">
-                                                {report.reference_data ? (
-                                                    <div className="space-y-2">
-                                                        <p className="font-bold text-gray-700 font-sans mb-1">[사용된 데이터 요약]</p>
-                                                        <div>• 혈액 검사: {report.reference_data.blood_tests?.length || 0}건</div>
-                                                        <div>• CT 검사: {report.reference_data.ct_scans?.length || 0}건</div>
-                                                        {report.reference_data.blood_tests?.[0] && (
-                                                            <div className="mt-2 pt-2 border-t border-dashed">
-                                                                최근 검사일: {report.reference_data.blood_tests[0].test_date}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : "참고된 데이터가 없습니다."}
-                                            </div>
+                                        <div className="px-4 pb-4 pt-3 border-t border-gray-100">
+                                            {report.reference_data ? (
+                                                <div className="space-y-1.5 text-xs text-gray-600">
+                                                    <p className="font-bold text-gray-700 mb-2">[사용된 데이터 요약]</p>
+                                                    <div>• 혈액 검사: {report.reference_data.blood_tests?.length || 0}건</div>
+                                                    <div>• CT 검사: {report.reference_data.ct_scans?.length || 0}건</div>
+                                                    <div>• iNKt 치료: {report.reference_data.inkt_records?.length || 0}건</div>
+                                                    {report.reference_data.blood_tests?.[0] && (
+                                                        <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+                                                            최근 검사일: {report.reference_data.blood_tests[0].test_date}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : "참고된 데이터가 없습니다."}
                                         </div>
                                     </details>
 
@@ -602,6 +601,13 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                         >
                                             {report.content || ''}
                                         </ReactMarkdown>
+                                    </div>
+
+                                    {/* Disclaimer */}
+                                    <div className="mt-8 px-4 py-2 bg-gray-100 rounded-full">
+                                        <p className="text-xs text-gray-500 text-center leading-relaxed">
+                                            * 본 리포트는 AI 보조 분석 결과이며, 의학적 진단을 대신할 수 없습니다. 반드시 주치의와 상담하세요.
+                                        </p>
                                     </div>
                                 </div>
                             ))}

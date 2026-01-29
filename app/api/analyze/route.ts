@@ -25,7 +25,7 @@ export async function POST(request: Request) {
             .select('*')
             .eq('user_id', user.id)
             .order('test_date', { ascending: false })
-            .limit(2)
+            .limit(3)
 
         // 2. Fetch recent CT Scans (Limit 1)
         const { data: ctScans } = await supabase
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
             .select('*')
             .eq('user_id', user.id)
             .order('scan_date', { ascending: false })
-            .limit(1)
+            .limit(3)
 
         // 3. iNKt Records (Limit 1)
         const { data: inktRecords } = await supabase
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
             .select('*')
             .eq('user_id', user.id)
             .order('blood_collection_date', { ascending: false })
-            .limit(1)
+            .limit(3)
 
         if ((!bloodTests || bloodTests.length === 0) && (!ctScans || ctScans.length === 0) && (!inktRecords || inktRecords.length === 0)) {
             return NextResponse.json({
@@ -67,17 +67,29 @@ export async function POST(request: Request) {
         [Patient Data]
         `
 
+        // Format multiple records for context
         if (currentData) {
-            promptData += `\nLatest Blood Test (${currentData.test_date}): ${JSON.stringify(currentData)}`
+            promptData += `\n\n[Latest Blood Test - ${currentData.test_date}]\n${JSON.stringify(currentData, null, 2)}`
         }
         if (previousData) {
-            promptData += `\nPrevious Blood Test (${previousData.test_date}): ${JSON.stringify(previousData)}`
+            promptData += `\n\n[Previous Blood Test - ${previousData.test_date}]\n${JSON.stringify(previousData, null, 2)}`
         }
-        if (ctData) {
-            promptData += `\nLatest CT Scan (${ctData.scan_date}): ${JSON.stringify(ctData)}`
+        if (bloodTests?.[2]) {
+            promptData += `\n\n[Earlier Blood Test - ${bloodTests[2].test_date}]\n${JSON.stringify(bloodTests[2], null, 2)}`
         }
-        if (inktData) {
-            promptData += `\nLatest iNKt Treatment (${inktData.blood_collection_date}): ${JSON.stringify(inktData)}`
+
+        if (ctScans && ctScans.length > 0) {
+            promptData += `\n\n[CT Scan Records]`
+            ctScans.forEach((ct, idx) => {
+                promptData += `\n\nCT Scan ${idx + 1} (${ct.scan_date}):\n${JSON.stringify(ct, null, 2)}`
+            })
+        }
+
+        if (inktRecords && inktRecords.length > 0) {
+            promptData += `\n\n[iNKt Treatment Records - IMPORTANT: Analyze these thoroughly]`
+            inktRecords.forEach((inkt, idx) => {
+                promptData += `\n\niNKt Treatment ${idx + 1} (${inkt.blood_collection_date}):\n${JSON.stringify(inkt, null, 2)}`
+            })
         }
 
         const systemPrompt = `
@@ -88,37 +100,53 @@ export async function POST(request: Request) {
         
         [Output Style]
         - **Headings**: Use Markdown H1 (#) for main sections and H2 (##) for subsections.
+        - **Separators**: Insert a horizontal rule (---) after each major section to visually separate content.
         - **Spacing**: Ensure ample whitespace between sections.
         - **Tone**: Professional, encouraging, and clear.
         
         [REPORT STRUCTURE]
         
-        # 🔴 1. 긴급 주의 사항 (Urgent Alert)
+        # 1. 긴급 주의 사항 (Urgent Alert)
         - IF AND ONLY IF there are critical values (e.g., hypoglycemia < 60, severe electrolyte imbalance), list them here.
         - If stable, output: "특이 사항 없음: 현재 검사 결과는 안정적입니다."
+        
+        ---
 
-        # 📊 2. 혈액 검사 지표 변화 (Blood Test Trends)
+        # 2. 혈액 검사 지표 변화 (Blood Test Trends)
         - Create a Markdown comparison table.
         - Table Header Format: | 항목 | 이전 (Date) | 현재 (Date) | 상태 | 분석 |
         - Replace 'Date' with actual test dates (e.g., 2026-02-04).
         - Highlight significant changes in Glucose, Albumin, Tumor Markers, Electrolytes.
+        
+        ---
 
-        # 🔍 3. 영상 검사 분석 (CT Scan)
+        # 3. 영상 검사 분석 (CT Scan)
         - Analyze Primary Site, Metastasis, Complications.
+        
+        ---
 
-        # 💉 4. iNKt 치료 방향 제언 (iNKt Treatment Strategy)
-        - **Based on**: Receny, Notes (Side effects), Treatment Effect.
-        - If side effects exist (fever/chills) -> Suggest hydration/rest.
-        - If positive effect -> Encourage consistency.
-        - If complications -> Suggest doctor consultation.
+        # 4. iNKt 치료 방향 제언 (iNKt Treatment Strategy)
+        **CRITICAL**: You MUST analyze the iNKt Treatment Records provided in the [Patient Data] section.
+        - Review ALL iNKt treatment records provided (treatment dates, dosages, side effects, treatment effects)
+        - **Based on**: Treatment dates, frequency, notes (side effects like fever/chills), treatment effectiveness
+        - If side effects exist (fever/chills) -> Suggest hydration/rest and discuss with doctor
+        - If positive effects noted -> Encourage consistency and continuation
+        - If no recent treatments -> Suggest discussing treatment schedule with doctor
+        - Compare treatment timeline with blood test results to identify correlations
+        
+        ---
 
-        # 🥗 5. 맞춤형 생활 지침 (Diet & Lifestyle)
+        # 5. 맞춤형 생활 지침 (Diet & Lifestyle)
         - Specific diet advice based on current lab results.
+        
+        ---
 
-        # 💡 6. 의료진 상담 가이드 (Questions for Doctor)
+        # 6. 의료진 상담 가이드 (Questions for Doctor)
         - 3-4 specific questions.
+        
+        ---
 
-        # ✨ 응원 메시지
+        # 응원 메시지
         - A warm closing message.
         `
 
@@ -139,7 +167,7 @@ export async function POST(request: Request) {
             user_id: user.id,
             content: analysisResult,
             report_date: new Date().toISOString(),
-            reference_data: { blood_tests: bloodTests, ct_scans: ctScans }
+            reference_data: { blood_tests: bloodTests, ct_scans: ctScans, inkt_records: inktRecords }
         })
 
         if (saveError) {
