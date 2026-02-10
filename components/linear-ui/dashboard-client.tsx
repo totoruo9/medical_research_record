@@ -27,6 +27,8 @@ import { BloodTestForm } from '@/components/blood-test-form'
 import { CTScanForm } from '@/components/ct-scan-form'
 import { InktRecordForm } from '@/components/inkt-record-form'
 import { toast } from 'sonner'
+import { pdf } from '@react-pdf/renderer'
+import { ReportPDF } from '@/components/report-pdf'
 
 type BloodTest = any
 type Report = any
@@ -73,10 +75,10 @@ interface LinearDashboardClientProps {
     initialBloodTests: BloodTest[]
     initialReports: Report[]
     initialTimeline: any[] // Mixed types
+    activeTab?: 'dashboard' | 'analysis'
 }
 
-export default function LinearDashboardClient({ user, initialBloodTests, initialTimeline, initialReports }: LinearDashboardClientProps) {
-    const [activeTab, setActiveTab] = useState('dashboard')
+export default function LinearDashboardClient({ user, initialBloodTests, initialTimeline, initialReports, activeTab = 'dashboard' }: LinearDashboardClientProps) {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [visibleItems, setVisibleItems] = useState(5)
     // AI Analysis State
@@ -104,6 +106,22 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
         } catch (error) {
             console.error('Delete error:', error)
             toast.error('리포트 삭제에 실패했습니다.')
+        }
+    }
+
+    const handleDownloadPDF = async (report: any) => {
+        try {
+            const blob = await pdf(<ReportPDF report={report} />).toBlob()
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `AI_분석리포트_${format(new Date(report.created_at), 'yyyyMMdd')}.pdf`
+            link.click()
+            URL.revokeObjectURL(url)
+            toast.success('PDF 다운로드가 시작되었습니다.')
+        } catch (error) {
+            console.error('PDF error:', error)
+            toast.error('PDF 다운로드에 실패했습니다.')
         }
     }
 
@@ -154,14 +172,13 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
             {/* Navbar */}
             <LHeader>
                 <div className="flex items-center gap-8">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/dashboard')}>
                         <img src="/favicon.ico" alt="I-Eum" className="h-8 w-8 rounded-lg" />
                         <span className="text-lg font-bold text-gray-900 tracking-tight">I-Eum</span>
                     </div>
                     <LNav className="hidden md:flex space-x-1">
-                        <LNavLink href="#" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')}>Dashboard</LNavLink>
-                        <LNavLink href="#" active={activeTab === 'records'} onClick={() => setActiveTab('records')}>Medical Records</LNavLink>
-                        <LNavLink href="#" active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')}>AI Analysis</LNavLink>
+                        <LNavLink href="#" active={activeTab === 'dashboard'} onClick={() => router.push('/dashboard')}>Dashboard</LNavLink>
+                        <LNavLink href="#" active={activeTab === 'analysis'} onClick={() => router.push('/analysis')}>AI Analysis</LNavLink>
                     </LNav>
                 </div>
                 <div className="flex items-center gap-4">
@@ -187,7 +204,7 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                             <div className="px-3 py-2 border-b border-gray-100 text-xs font-semibold text-gray-500">알림</div>
                             {analysisResultReady ? (
                                 <LDropdownItem onClick={() => {
-                                    setActiveTab('analysis');
+                                    router.push('/analysis');
                                     setHasUnreadNotification(false);
                                     setAnalysisResultReady(false);
                                     setNotificationDropdownOpen(false);
@@ -328,7 +345,6 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                 <section>
                                     <div className="flex items-center justify-between mb-4">
                                         <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Clock className="h-5 w-5 text-gray-500" /> 최근 활동 내역</h2>
-                                        <LButton variant="ghost" size="sm" onClick={() => setActiveTab('records')} className="text-gray-500">전체 보기 <ChevronRight className="h-3 w-3 ml-1" /></LButton>
                                     </div>
                                     <LTimeline>
                                         {(() => {
@@ -503,7 +519,7 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                             description="최근 검사 결과를 바탕으로 한 AI 분석입니다."
                                             tag="NEW"
                                             className="mb-4"
-                                            actions={<LButton size="sm" className="w-full" onClick={() => setActiveTab('analysis')}>전체 리포트 읽기</LButton>}
+                                            actions={<LButton size="sm" className="w-full" onClick={() => router.push('/analysis')}>전체 리포트 읽기</LButton>}
                                         />
                                     ) : (
                                         <LEmptyState>분석 리포트가 없습니다.</LEmptyState>
@@ -515,31 +531,6 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                 )
                 }
 
-                {/* Records Tab */}
-                {
-                    activeTab === 'records' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-2xl font-bold text-gray-900">의료 기록</h2>
-                                <LButton onClick={() => setIsUploadModalOpen(true)}><Plus className="h-4 w-4 mr-1.5" /> 기록 추가</LButton>
-                            </div>
-                            {initialBloodTests.map((test) => (
-                                <LExpandableCard
-                                    key={test.id}
-                                    title={`혈액 검사 - ${test.hospital_name || '병원 미지정'}`}
-                                    subtitle={format(new Date(test.test_date), 'yyyy.MM.dd')}
-                                >
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                                        <LMetricCard label="CA 19-9" value={test.ca19_9 || '-'} status={getMetricStatus('ca19_9', test.ca19_9).status === 'warning' ? 'warning' : 'normal'} />
-                                        <LMetricCard label="CEA" value={test.cea || '-'} status={getMetricStatus('cea', test.cea).status === 'warning' ? 'warning' : 'normal'} />
-                                        <LMetricCard label="WBC" value={test.wbc || '-'} status={getMetricStatus('wbc', test.wbc).status === 'warning' ? 'warning' : 'normal'} />
-                                        <LMetricCard label="PLT" value={test.plt || '-'} status={getMetricStatus('plt', test.plt).status === 'warning' ? 'warning' : 'normal'} />
-                                    </div>
-                                </LExpandableCard>
-                            ))}
-                        </div>
-                    )
-                }
 
                 {/* Analysis Tab */}
                 {
@@ -561,7 +552,12 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-gray-400 font-medium mr-2">{format(new Date(report.created_at), 'HH:mm')}</span>
-                                            <LButton variant="outline" size="sm" className="h-8 text-xs gap-1.5 text-gray-600">
+                                            <LButton
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-xs gap-1.5 text-gray-600"
+                                                onClick={() => handleDownloadPDF(report)}
+                                            >
                                                 <FileText className="h-3.5 w-3.5" /> PDF
                                             </LButton>
                                             <LButton
@@ -609,10 +605,10 @@ export default function LinearDashboardClient({ user, initialBloodTests, initial
                                                 h1: ({ node, ...props }) => <h1 className="text-xl font-bold mt-10 mb-4 flex items-center gap-2 text-gray-700" {...props} />,
                                                 h2: ({ node, ...props }) => <h2 className="text-lg font-bold mt-8 mb-3 text-gray-600" {...props} />,
                                                 h3: ({ node, ...props }) => <h3 className="text-base font-bold mt-6 mb-2 text-gray-600" {...props} />,
-                                                p: ({ node, ...props }) => <p className="text-base leading-relaxed mb-8 text-gray-600" {...props} />,
-                                                ul: ({ node, ...props }) => <ul className="mt-0 mb-8 pl-6 list-disc space-y-2 text-gray-600" {...props} />,
-                                                ol: ({ node, ...props }) => <ol className="mt-0 mb-8 pl-6 list-decimal space-y-2 text-gray-600" {...props} />,
-                                                li: ({ node, ...props }) => <li className="mb-2 pl-1" {...props} />,
+                                                p: ({ node, ...props }) => <p className="text-base leading-relaxed mb-3 text-gray-600" {...props} />,
+                                                ul: ({ node, ...props }) => <ul className="mt-0 mb-4 pl-6 list-disc space-y-1 text-gray-600" {...props} />,
+                                                ol: ({ node, ...props }) => <ol className="mt-0 mb-4 pl-6 list-decimal space-y-1 text-gray-600" {...props} />,
+                                                li: ({ node, ...props }) => <li className="mb-1 pl-1" {...props} />,
                                                 table: ({ node, ...props }) => <div className="overflow-x-auto mt-0 mb-8"><table className="w-full border-collapse border border-gray-200" {...props} /></div>,
                                                 thead: ({ node, ...props }) => <thead className="bg-gray-50" {...props} />,
                                                 th: ({ node, ...props }) => <th className="text-left p-4 text-xs font-extrabold text-gray-500 uppercase border-b border-gray-200" {...props} />,

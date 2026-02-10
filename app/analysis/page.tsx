@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import LinearDashboardClient from '@/components/linear-ui/dashboard-client'
 
-export default async function LinearRedesignPage() {
+export default async function DashboardAnalysisPage() {
     const supabase = await createClient()
 
     // 1. Auth Check
@@ -53,7 +53,7 @@ export default async function LinearRedesignPage() {
         })),
         ...(inktRecords || []).map((i: any) => ({
             id: `inkt-${i.id}`, type: 'inkt', date: i.blood_collection_date,
-            summary: `iNTk 치료 기록`, details: i
+            summary: `iNKt 치료 기록`, details: i
         }))
     ].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
@@ -63,6 +63,7 @@ export default async function LinearRedesignPage() {
             initialBloodTests={bloodTests || []}
             initialReports={reports || []}
             initialTimeline={timeline}
+            activeTab="analysis"
         />
     )
 }
